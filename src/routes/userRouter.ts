@@ -12,7 +12,7 @@ userRouter.get("/:id", (req, res) => {
     const userId = parseInt(req.params.id);
     const user = users.find(u => u.id === userId);
 
-    if (user) {
+    if (!user) {
         return res.status(404).json({
             sucess:false,
             message: "Usuário não encontrado"
