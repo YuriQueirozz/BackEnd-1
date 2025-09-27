@@ -26,7 +26,6 @@ userRouter.get("/age-range", (req, res) => {
     res.json(filtragemUsuarios);
 });
 
-// Rota GET por id
 userRouter.get("/:id", (req, res) => {
     const userId = parseInt(req.params.id);
     const user = users.find(u => u.id === userId);
@@ -41,3 +40,37 @@ userRouter.get("/:id", (req, res) => {
     res.json(user);
 });
 
+const posts = [
+    { title: "Flávio", content: "Backend", authorId: 1 }
+];
+
+userRouter.post("/posts", (req, res) => {
+    const { title, content, authorId } = req.body;
+
+    // Validaçoes 
+    if (!title || title.length < 3) {
+        return res.status(400).json({ success: false, message: "Título muito curto" });
+    }
+    if (!content || content.length < 10) {
+        return res.status(400).json({ success: false, message: "Conteúdo muito curto" });
+    }
+   
+    const autorExiste = users.find(u => u.id === authorId);
+    if (!autorExiste) {
+        return res.status(400).json({ success: false, message: "authorId não existe" });
+    }
+
+    
+    const novoPost = {
+        id: posts.length + 1,
+        title,
+        content,
+        authorId,
+        createdAt: new Date(),
+        published: false
+    };
+
+    posts.push(novoPost);
+
+    res.status(201).json(novoPost);
+});
