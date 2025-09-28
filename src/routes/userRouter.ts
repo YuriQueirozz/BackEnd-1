@@ -89,7 +89,7 @@ userRouter.put("/:id", (req, res) => {
 
     const emailDuplicado = users.find(u => u.email === email && u.id !== userId);
     if (emailDuplicado) {
-        return res.status(400).json({ 
+        return res.status(409).json({ 
             success: false, 
             message: "Email já está em uso" 
         });
