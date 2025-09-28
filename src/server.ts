@@ -6,6 +6,12 @@ app.listen(3003, () => {
 	console.log('Servidor rodando na porta 3003')
 })
 
+type ApiResponse = {
+    success: boolean;
+    message: string;
+    data?: any;
+    total?: number;
+};
 
 const users = [
 	{ id: 1, name: "Flávio", age: 18, email: "flavio@gmail.com", role: 'admin' },
@@ -27,7 +33,14 @@ app.get("/age-range", (req: Request, res: Response) => {
 	// Filtrar pela idade
 	const filtragemUsuarios = users.filter(u => u.age >= min && u.age <= max);
 
-	res.json(filtragemUsuarios);
+	const response: ApiResponse = {
+        success: true,
+        message: "Usuários filtrados com sucesso",
+        data: filtragemUsuarios,
+        total: filtragemUsuarios.length
+    };
+
+	return res.json(response);
 });
 
 app.get("/:id", (req: Request, res: Response) => {
@@ -41,7 +54,13 @@ app.get("/:id", (req: Request, res: Response) => {
 		});
 	};
 
-	res.json(user);
+	const response: ApiResponse = {
+        success: true,
+        message: "Usuário encontrado",
+        data: user
+    };
+
+	return res.json(response);
 });
 
 const posts = [
@@ -71,7 +90,6 @@ app.post("/posts", (req: Request, res: Response) => {
 		return res.status(400).json({ success: false, message: "authorId não existe" });
 	}
 
-	
 	const novoPost = {
 		id: posts.length + 1,
 		title,
@@ -83,7 +101,13 @@ app.post("/posts", (req: Request, res: Response) => {
 
 	posts.push(novoPost);
 
-	res.status(201).json(novoPost);
+	const response: ApiResponse = {
+    	success: true,
+    	message: "Operação realizada com sucesso",
+    	data: novoPost
+	};
+
+	return res.status(201).json(response);
 });
 
 app.put("/:id", (req: Request, res: Response) => {
@@ -116,7 +140,7 @@ app.put("/:id", (req: Request, res: Response) => {
 	if (typeof age !== 'number' || age < 0) {
 		return res.status(400).json({ 
 			success: false, 
-			message: "A odade deve ser um numero inteiro" 
+			message: "A odade deve ser um número inteiro" 
 		});
 	}
 
@@ -142,7 +166,13 @@ app.put("/:id", (req: Request, res: Response) => {
 		role
 	};
 
-	res.json(users[userIndex]);
+	const response: ApiResponse = {
+    	success: true,
+    	message: "Operação realizada com sucesso",
+    	data: users[userIndex]
+  };
+
+	return res.status(200).json(response);
 });
 
 app.patch("/posts/:id", (req: Request, res: Response) => {
@@ -161,7 +191,13 @@ app.patch("/posts/:id", (req: Request, res: Response) => {
 	if (content) post.content = content;
 	if (typeof published === "boolean") post.published = published;
 
-	res.json(post);
+	const response: ApiResponse = {
+    	success: true,
+    	message: "Operação realizada com sucesso",
+    	data: post
+  	};
+
+	return res.status(200).json(response);
 
 });
 
@@ -196,8 +232,40 @@ app.delete("/posts/:id", (req: Request, res: Response) => {
 	const index = posts.indexOf(post);
 	posts.splice(index, 1);
 
-	res.json({ 
-		success: true, 
-		message: "Post deletado"
-	});
+	return res.status(200).json({
+    success: true,
+    message: "Operação realizada com sucesso",
+    data: {
+      deletedPostId: postId
+    },
+  });
 })
+
+app.delete("/users/cleanup-inactive", (req: Request, res: Response) => {
+	const confirm = req.query.confirm;
+
+	if (confirm !== "true") {
+		return res.status(400).json({
+			success: false,
+			message: "É necessário a confirmação"
+		})
+	}
+
+	const usuariosParaRemover = users.filter(u => 
+		u.role !== "admin" && !posts.some(p => p.authorId === u.id)
+	);
+
+	for (const user of usuariosParaRemover) {
+		const index = users.indexOf(user);
+		
+		if (index !== -1) users.splice(index, 1);
+	}
+
+	const response: ApiResponse = {
+    success: true,
+    message: `${usuariosParaRemover.length} Usuários removidos`,
+    data: usuariosParaRemover,
+  };
+
+  return res.status(200).json(response);
+});
