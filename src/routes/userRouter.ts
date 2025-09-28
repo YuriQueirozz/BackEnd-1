@@ -41,7 +41,14 @@ userRouter.get("/:id", (req, res) => {
 });
 
 const posts = [
-    { title: "Flávio", content: "Backend", authorId: 1 }
+    { 
+        id: 1,
+        title: "Flávio", 
+        content: "Backend", 
+        authorId: 1,
+        createdAt: new Date(),
+        published: false,
+    }
 ];
 
 userRouter.post("/posts", (req, res) => {
@@ -132,4 +139,24 @@ userRouter.put("/:id", (req, res) => {
     };
 
     res.json(users[userIndex]);
+});
+
+userRouter.patch("/posts/:id", (req, res) => {
+    const postId = parseInt(req.params.id);
+    const { title, content, published } = req.body;
+    const post = posts.find(p => p.id === postId);
+
+    if (!post) {
+        return res.status(404).json({
+            success:false,
+            message: "Post não encontrado"
+        });
+    }
+
+    if (title) post.title = title;
+    if (content) post.content = content;
+    if (typeof published === "boolean") post.published = published;
+
+    res.json(post);
+
 });
