@@ -40,7 +40,7 @@ app.get("/age-range", (req: Request, res: Response) => {
         total: filtragemUsuarios.length
     };
 
-	return res.json(response);
+	return res.status(200).json(response);
 });
 
 app.get("/:id", (req: Request, res: Response) => {
@@ -60,7 +60,7 @@ app.get("/:id", (req: Request, res: Response) => {
         data: user
     };
 
-	return res.json(response);
+	return res.status(200).json(response);
 });
 
 const posts = [
