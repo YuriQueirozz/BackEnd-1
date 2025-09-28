@@ -123,5 +123,13 @@ userRouter.put("/:id", (req, res) => {
         });
     }
 
+    users[userIndex] = { 
+        id: userId,
+        name,
+        age,
+        email,
+        role
+    };
+
     res.json(users[userIndex]);
 });
