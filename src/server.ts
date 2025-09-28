@@ -164,3 +164,40 @@ app.patch("/posts/:id", (req: Request, res: Response) => {
 	res.json(post);
 
 });
+
+app.delete("/posts/:id", (req: Request, res: Response) => {
+	const postId = parseInt(req.params.id);
+	const userId = parseInt(req.header("user-id") as string);
+	const post = posts.find(p => p.id === postId);
+
+	if (!post) {
+		return res.status(404).json({
+			success:false,
+			message: "Post não encontrado"
+		});
+	}
+
+	const user = users.find(u => u.id === userId);
+	
+	if (!user) {
+		return res.status(400).json({
+			success:false,
+			message: "Usuário não autenticado"
+		});
+	}
+
+	if (post.authorId !== userId && user.role !== "admin") {
+		return res.status(501).json({
+			success:false,
+			message: "Você não pode delear o post"
+		});
+	}
+
+	const index = posts.indexOf(post);
+	posts.splice(index, 1);
+
+	res.json({ 
+		success: true, 
+		message: "Post deletado"
+	});
+})
