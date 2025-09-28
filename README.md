@@ -13,3 +13,5 @@ PUT: Atualização completa de informações de um usuário.
 PATCH: Atualização parcial de informações de um post.
 
 DELETE: Remoção de posts e limpeza de usuários inativos.
+
+Readme genérico* - Yuri
