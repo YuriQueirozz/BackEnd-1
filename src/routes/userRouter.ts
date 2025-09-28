@@ -4,9 +4,9 @@ export const userRouter = Router();
 
 // Teste
 const users = [
-    { id: 1, nome: "Flávio", idade: 18 },
-    { id: 2, nome: "Nilton", idade: 22 },
-    { id: 3, nome: "Lucas", idade: 25 },
+    { id: 1, name: "Flávio", age: 18, email: "flavio@gmail.com", role: 'admin' },
+    { id: 2, name: "Nilton", age: 22, email: "nilton@gmail.com", role: 'user'},
+    { id: 3, name: "Lucas", age: 25, email: "lucas@gmail.com", role: 'admin'},
 ];
 
 userRouter.get("/age-range", (req, res) => {
@@ -21,7 +21,7 @@ userRouter.get("/age-range", (req, res) => {
     }
 
     // Filtrar pela idade
-    const filtragemUsuarios = users.filter(u => u.idade >= min && u.idade <= max);
+    const filtragemUsuarios = users.filter(u => u.age >= min && u.age <= max);
 
     res.json(filtragemUsuarios);
 });
@@ -73,4 +73,55 @@ userRouter.post("/posts", (req, res) => {
     posts.push(novoPost);
 
     res.status(201).json(novoPost);
+});
+
+userRouter.put("/:id", (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { name, email, role, age } = req.body;
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ 
+            success: false, 
+            message: "Usuário não encontrado" 
+        });
+    }
+
+    const emailDuplicado = users.find(u => u.email === email && u.id !== userId);
+    if (emailDuplicado) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Email já está em uso" 
+        });
+    }
+
+    if (typeof name !== 'string' || name.length < 3) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Digite um nome válido de no mínimo 3 letras" 
+        });
+    }
+
+    if (typeof age !== 'number' || age < 0) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "A odade deve ser um numero inteiro" 
+        });
+    }
+
+    if (typeof role !== "string" || (role !== "admin" && role !== "user")) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Role inválido" 
+        });
+    }
+
+    if (typeof email !== 'string') {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Email inválido" 
+        });
+    }
+
+    res.json(users[userIndex]);
 });
